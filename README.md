@@ -3,6 +3,9 @@
 AMD-compatible, uses jQuery.ajax to make the XHR requests but with better CouchDB
 error reporting and a simpler API.
 
+**702 bytes** (packed and gzipped)
+
+
 ### Example
 
 ```javascript

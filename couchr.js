@@ -11,7 +11,9 @@ define('couchr', ['exports', 'jquery'], function (exports, $) {
     function onComplete(options, callback) {
         return function (req) {
             var resp;
-            var ctype = req.getResponseHeader('Content-Type').split(';')[0];
+            if (ctype = req.getResponseHeader('Content-Type')) {
+                ctype = ctype.split(';')[0];
+            }
             if (ctype === 'application/json' || ctype === 'text/json') {
                 try {
                     resp = $.parseJSON(req.responseText)
@@ -38,11 +40,12 @@ define('couchr', ['exports', 'jquery'], function (exports, $) {
             }
             else {
                 // TODO: map status code to meaningful error message
-                var err2 = new Error(
-                    req.statusText || 'Returned status code: ' + req.status
-                );
+                var msg = req.statusText;
+                if (!msg || msg === 'error') {
+                    msg = 'Returned status code: ' + req.status;
+                }
+                var err2 = new Error(msg);
                 err2.status = req.status;
-                console.log(['status err', req, resp]);
                 callback(err2);
             }
         };

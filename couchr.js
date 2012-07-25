@@ -135,7 +135,19 @@ define('couchr', ['exports', 'jquery'], function (exports, $) {
     exports.post = makeRequest('POST');
     exports.head = makeRequest('HEAD');
     exports.put = makeRequest('PUT');
-    exports.delete = makeRequest('DELETE');
+
+    // data.rev should be in query part of URL
+    exports.delete = function (url, data, callback) {
+        if (!callback) {
+            callback = data;
+            data = null;
+        }
+        if (data && data.rev && !/\?rev=/.test(url)) {
+            url += (url.indexOf('?') === -1) ? '?': '&';
+            url += 'rev=' + encodeURIComponent(data.rev);
+        }
+        exports.request('DELETE', url, data, callback);
+    };
 
     // non-standard HTTP method, may not work in all browsers
     exports.copy = function (from, to, callback) {

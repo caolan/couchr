@@ -19,7 +19,7 @@ define('couchr', ['exports', 'jquery'], function (exports, $) {
                     resp = $.parseJSON(req.responseText)
                 }
                 catch (e) {
-                    return callback(e);
+                    return callback(e, null, req);
                 }
             }
             else {
@@ -28,7 +28,7 @@ define('couchr', ['exports', 'jquery'], function (exports, $) {
                 resp = xml ? req.responseXML : req.responseText;
             }
             if (req.status === 200 || req.status === 201 || req.status === 202) {
-                callback(null, resp);
+                callback(null, resp, req);
             }
             else if (resp && (resp.error || resp.reason)) {
                 var err = new Error(resp.reason || resp.error);
@@ -36,7 +36,7 @@ define('couchr', ['exports', 'jquery'], function (exports, $) {
                 err.reason = resp.reason;
                 err.code = resp.code;
                 err.status = req.status;
-                callback(err);
+                callback(err, null, req);
             }
             else {
                 // TODO: map status code to meaningful error message
@@ -46,7 +46,7 @@ define('couchr', ['exports', 'jquery'], function (exports, $) {
                 }
                 var err2 = new Error(msg);
                 err2.status = req.status;
-                callback(err2);
+                callback(err2, null, req);
             }
         };
     }

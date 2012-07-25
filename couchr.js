@@ -93,12 +93,19 @@ define('couchr', ['exports', 'jquery'], function (exports, $) {
     };
 
 
-    exports.request = function (method, url, /*optional*/data, callback) {
+    exports.request = function (method, url, /*o*/data, /*o*/opt, callback) {
+        if (!callback) {
+            callback = opt;
+            opt = null;
+        }
         if (!callback) {
             callback = data;
             data = null;
         }
-        var options = {type: method, url: url};
+        var options = opt || {};
+        options.type = method;
+        options.url = url;
+
         if (data) {
             try {
                 if (method === 'GET' || method === 'HEAD') {
@@ -129,5 +136,13 @@ define('couchr', ['exports', 'jquery'], function (exports, $) {
     exports.head = makeRequest('HEAD');
     exports.put = makeRequest('PUT');
     exports.delete = makeRequest('DELETE');
+
+    // non-standard HTTP method, may not work in all browsers
+    exports.copy = function (from, to, callback) {
+        var opt = {
+            headers: {'Destination': to}
+        };
+        exports.request('COPY', from, null, opt, callback);
+    };
 
 });

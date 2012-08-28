@@ -1,0 +1,200 @@
+var querystring = require('querystring'),
+    http = require('http'),
+    https = require('https'),
+    url = require('url'),
+    urlParse = url.parse,
+    urlFormat = url.format;
+
+
+var STATUS_MSGS = {
+    400: '400: Bad Request',
+    401: '401: Unauthorized',
+    402: '402: Payment Required',
+    403: '403: Forbidden',
+    404: '404: Not Found',
+    405: '405: Method Not Allowed',
+    406: '406: Not Acceptable',
+    407: '407: Proxy Authentication Required',
+    408: '408: Request Timeout',
+    409: '409: Conflict',
+    410: '410: Gone',
+    411: '411: Length Required',
+    412: '412: Precondition Failed',
+    413: '413: Request Entity Too Large',
+    414: '414: Request-URI Too Long',
+    415: '415: Unsupported Media Type',
+    416: '416: Requested Range Not Satisfiable',
+    417: '417: Expectation Failed',
+    418: '418: I\'m a teapot',
+    422: '422: Unprocessable Entity',
+    423: '423: Locked',
+    424: '424: Failed Dependency',
+    425: '425: Unordered Collection',
+    444: '444: No Response',
+    426: '426: Upgrade Required',
+    449: '449: Retry With',
+    450: '450: Blocked by Windows Parental Controls',
+    499: '499: Client Closed Request',
+    500: '500: Internal Server Error',
+    501: '501: Not Implemented',
+    502: '502: Bad Gateway',
+    503: '503: Service Unavailable',
+    504: '504: Gateway Timeout',
+    505: '505: HTTP Version Not Supported',
+    506: '506: Variant Also Negotiates',
+    507: '507: Insufficient Storage',
+    509: '509: Bandwidth Limit Exceeded',
+    510: '510: Not Extended'
+};
+
+
+/**
+ * Creates an error object with a message depending on the HTTP status code
+ * of a response.
+ */
+
+exports.statusCodeError = function (code) {
+    if (code in STATUS_MSGS) {
+        return new Error(STATUS_MSGS[code]);
+    }
+    return new Error('Status code: ' + code);
+};
+
+
+exports.request = function (method, url, /*opt*/data, /*opt*/opt, callback) {
+    if (!callback) {
+        callback = opt;
+        opt = {};
+    }
+    if (!callback) {
+        callback = data;
+        data = null;
+    }
+    var parsed = urlParse(url);
+    var path = parsed.path;
+    var headers = {
+        'Host': parsed.hostname,
+        'Accept': 'application/json'
+    };
+    if (method === 'POST' || method === 'PUT') {
+        if (typeof data !== 'string' && !Buffer.isBuffer(data)) {
+            try {
+                data = JSON.stringify(data);
+            }
+            catch (e) {
+                return callback(e);
+            }
+        }
+        if (!Buffer.isBuffer(data)) {
+            data = new Buffer(data);
+        }
+        headers['Content-Type'] = 'application/json';
+        headers['Content-Length'] = data.length;
+    }
+    else if (data) {
+        path = parsed.pathname + '?' + querystring.stringify(data);
+        data = null;
+        headers['Content-Length'] = 0;
+    }
+
+    if (parsed.auth) {
+        var enc = new Buffer(parsed.auth).toString('base64');
+        headers.Authorization = "Basic " + enc;
+    }
+
+    var proto = (parsed.protocol === 'https:') ? https: http;
+
+    var request = proto.request({
+        host: parsed.hostname,
+        port: parsed.port,
+        method: method,
+        path: path,
+        headers: headers
+    });
+
+    request.on('response', function (response) {
+        if (response.headers.connection === 'close' &&
+            response.statusCode >= 300) {
+            var err3 = exports.statusCodeError(response.statusCode);
+            err3.response = response;
+            return callback(err3, data, response);
+        }
+        else {
+            var buffer = [];
+            response.on('data', function (chunk) {
+                buffer.push(chunk.toString());
+            });
+            response.on('end', function () {
+                var data = buffer.join('');
+                if (response.headers['content-type'] === 'application/json') {
+                    try {
+                        data = buffer.length ? JSON.parse(data): null;
+                    }
+                    catch (e) {
+                        return callback(e);
+                    }
+                }
+                if (response.statusCode >= 300) {
+                    if (data && data.error) {
+                        var err = new Error(
+                            data.error + (data.reason ? '\n' + data.reason: '')
+                        );
+                        err.error = data.error;
+                        err.reason = data.reason;
+                        err.response = response;
+                        return callback(err, data, response);
+                    }
+                    else {
+                        var err2 = exports.statusCodeError(response.statusCode);
+                        err2.response = response;
+                        return callback(err2, data, response);
+                    }
+                }
+                else {
+                    process.nextTick(function () {
+                        return callback(null, data, response);
+                    });
+                }
+            });
+        }
+    });
+
+    if (data && (method === 'POST' || method === 'PUT')) {
+        request.write(data, 'utf8');
+    }
+    request.end();
+};
+
+
+function makeRequest(method) {
+    return function () {
+        var args = Array.prototype.slice.call(arguments);
+        exports.request.apply(this, [method].concat(args));
+    };
+};
+
+exports.get = makeRequest('GET');
+exports.post = makeRequest('POST');
+exports.head = makeRequest('HEAD');
+exports.put = makeRequest('PUT');
+
+// data.rev should be in query part of URL
+exports.delete = function (url, data, callback) {
+    if (!callback) {
+        callback = data;
+        data = null;
+    }
+    if (data && data.rev && !/\?rev=/.test(url)) {
+        url += (url.indexOf('?') === -1) ? '?': '&';
+        url += 'rev=' + encodeURIComponent(data.rev);
+    }
+    exports.request('DELETE', url, data, callback);
+};
+
+// non-standard HTTP method, may not work in all browsers
+exports.copy = function (from, to, callback) {
+    var opt = {
+        headers: {'Destination': to}
+    };
+    exports.request('COPY', from, null, opt, callback);
+};

@@ -1,4 +1,4 @@
-define('couchr', ['exports', 'jquery'], function (exports, $) {
+define(['exports', 'events', 'jquery'], function (exports, events, $) {
 
     /**
      * Returns a function for handling ajax responses from jquery and calls
@@ -155,6 +155,75 @@ define('couchr', ['exports', 'jquery'], function (exports, $) {
             headers: {'Destination': to}
         };
         exports.request('COPY', from, null, opt, callback);
+    };
+
+    exports.changes = function (dburl, q) {
+        q = q || {};
+        q.feed = q.feed || 'longpoll';
+        q.heartbeat = q.heartbeat || 10000;
+
+        var ev = new events.EventEmitter();
+        var request_in_progress = false;
+        var paused = false;
+
+        ev.pause = function () {
+            paused = true;
+        };
+
+        ev.resume = function () {
+            paused = false;
+            if (!request_in_progress) {
+                getChanges();
+            }
+        }
+
+        function getChanges() {
+            if (paused) {
+                return;
+            }
+            try {
+                var data = exports.stringifyQuery(q);
+            }
+            catch (e) {
+                return ev.emit('error', e);
+            }
+            var url = dburl + '/_changes';
+            request_in_progress = true;
+
+            exports.request('GET', url, data, function (err, data) {
+                request_in_progress = false;
+                if (err) {
+                    ev.emit('error', err);
+                    // retry after 1 sec
+                    setTimeout(getChanges, 1000);
+                }
+                if (!paused) {
+                    ev.emit('data', data);
+                    q.since = data.last_seq;
+                    getChanges();
+                }
+            });
+        }
+
+        // use setTimeout to pass control back to the browser briefly to
+        // allow the loading spinner to stop on page load
+        setTimeout(function () {
+            if (q.hasOwnProperty('since')) {
+                getChanges();
+            }
+            else {
+                exports.get(dburl, function (err, info) {
+                    if (err) {
+                        // no retry, just fail
+                        return ev.emit('error', err);
+                    }
+                    q.since = info.update_seq;
+                    getChanges();
+                });
+            }
+        }, 0);
+
+        return ev;
     };
 
 });

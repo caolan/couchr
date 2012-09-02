@@ -3,8 +3,11 @@
     "description": "Lightweight XHR wrapper for CouchDB requests",
     "version": "0.0.4",
     "categories": ["AJAX & Websockets", "API Clients"],
-    "dependencies": {
-        "jquery": null
+    "jam": {
+        "dependencies": {
+            "jquery": null,
+            "events": null
+        }
     },
     "github": "https://github.com/caolan/couchr",
     "bugs": {

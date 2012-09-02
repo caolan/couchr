@@ -175,7 +175,7 @@ define(['exports', 'events', 'jquery'], function (exports, events, $) {
             if (!request_in_progress) {
                 getChanges();
             }
-        }
+        };
 
         function getChanges() {
             if (paused) {
@@ -198,7 +198,9 @@ define(['exports', 'events', 'jquery'], function (exports, events, $) {
                     setTimeout(getChanges, 1000);
                 }
                 if (!paused) {
-                    ev.emit('data', data);
+                    for (var i = 0, len = data.results.length; i < len; i++) {
+                        ev.emit('change', data.results[i]);
+                    }
                     q.since = data.last_seq;
                     getChanges();
                 }

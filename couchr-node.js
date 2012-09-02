@@ -1,4 +1,5 @@
 var querystring = require('querystring'),
+    follow = require('follow'),
     http = require('http'),
     https = require('https'),
     url = require('url'),
@@ -197,4 +198,15 @@ exports.copy = function (from, to, callback) {
         headers: {'Destination': to}
     };
     exports.request('COPY', from, null, opt, callback);
+};
+
+exports.changes = function (dburl, q) {
+    q = q || {};
+    if (!q.hasOwnProperty('since')) {
+        q.since = 'now';
+    }
+    q.db = dburl;
+    var feed = new follow.Feed(q);
+    feed.follow();
+    return feed;
 };

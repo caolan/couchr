@@ -4,10 +4,15 @@
     "version": "0.0.4",
     "categories": ["AJAX & Websockets", "API Clients"],
     "jam": {
+        "main": "couchr.js",
+        "include": ["couchr.js", "README.md"],
         "dependencies": {
             "jquery": null,
             "events": null
         }
+    },
+    "dependencies": {
+        "follow": "0.8.0"
     },
     "github": "https://github.com/caolan/couchr",
     "bugs": {
@@ -24,6 +29,5 @@
             "type": "MIT",
             "url": "http://www.opensource.org/licenses/mit-license.php"
         }
-    ],
-    "main": "couchr.js"
+    ]
 }

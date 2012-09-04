@@ -42,10 +42,10 @@ feed.resume();
 
 ### Installation
 
-Browser (using [jam][1]):
+Browser (using [jam](http://jamjs.org)):
 
     jam install couchr
 
-Node (using [npm][2]):
+Node (using [npm](http://npmjs.org)):
 
     npm install couchr

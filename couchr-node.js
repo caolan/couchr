@@ -180,7 +180,7 @@ exports.head = makeRequest('HEAD');
 exports.put = makeRequest('PUT');
 
 // data.rev should be in query part of URL
-exports.delete = function (url, data, callback) {
+exports.del = function (url, data, callback) {
     if (!callback) {
         callback = data;
         data = null;

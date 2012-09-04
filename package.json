@@ -4,13 +4,14 @@
     "version": "0.0.4",
     "categories": ["AJAX & Websockets", "API Clients"],
     "jam": {
-        "main": "couchr.js",
-        "include": ["couchr.js", "README.md"],
+        "main": "couchr-browser.js",
+        "include": ["couchr-browser.js", "README.md"],
         "dependencies": {
             "jquery": null,
             "events": null
         }
     },
+    "main": "couchr-node.js",
     "dependencies": {
         "follow": "0.8.0"
     },

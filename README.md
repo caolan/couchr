@@ -1,28 +1,51 @@
 # couchr
 
-AMD-compatible, uses jQuery.ajax to make the XHR requests but with better CouchDB
-error reporting and a simpler API.
+Simple request library for CouchDB. Provides both a Node.js module and a
+browser module (based on jQuery.ajax), with better CouchDB error reporting
+and a simpler API than making XHR requests directly in the browser.
 
-**702 bytes** (packed and gzipped)
 
-
-### Example
+### Examples
 
 ```javascript
+// browser
 require(['couchr'], function (couchr) {
     couchr.get('/dbname/docid', function (err, doc) {
         ...
     });
 });
+
+// Node
+var couchr = require('couchr');
+couchr.get('http://hostname:port/dbname/docid', function (err, doc) {
+    ...
+});
 ```
 
 ### Methods
 
-    couchr.get(url, [params], callback)
-    couchr.post(url, [data], callback)
-    couchr.head(url, callback)
-    couchr.put(url, [data], callback)
-    couchr.delete(url, [data], callback)
+```javascript
+couchr.get (url, /*optional*/params, function (err, res, req) { ... })
+couchr.post(url, /*optional*/data,   function (err, res, req) { ... })
+couchr.put (url, /*optional*/data,   function (err, res, req) { ... })
+couchr.del (url, /*optional*/data,   function (err, res, req) { ... })
+couchr.head(url, function (err, res, req) { ... })
 
-    couchr.ajax(options, callback) - Works like the jQuery.ajax function
-    but with the callback using couchr error handling.
+couchr.copy(from, to, function (err, res, req) { ... }) 
+
+var feed = couchr.changes(db_url);
+feed.on('change', function (change_object) { ...  });
+feed.on('error', function (err) { ...  });
+feed.pause();
+feed.resume();
+```
+
+### Installation
+
+Browser (using [jam][1]):
+
+    jam install couchr
+
+Node (using [npm][2]):
+
+    npm install couchr

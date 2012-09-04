@@ -1,4 +1,21 @@
-define(['exports', 'events', 'jquery'], function (exports, events, $) {
+/**
+ * Universal module definition
+ */
+
+(function (root, factory) {
+
+    if (typeof exports === 'object') {
+        factory(exports, require('events'), require('jquery')); // Commonjs
+    }
+    else if (typeof define === 'function' && define.amd) {
+        define(['exports', 'events', 'jquery'], factory); // AMD
+    }
+    else {
+        root.couchr = {};
+        factory(root.couchr, events, jQuery); // Browser globals
+    }
+
+}(this, function (exports, events, $) {
 
     /**
      * Returns a function for handling ajax responses from jquery and calls
@@ -27,7 +44,7 @@ define(['exports', 'events', 'jquery'], function (exports, events, $) {
                 var xml = ct.indexOf("xml") >= 0;
                 resp = xml ? req.responseXML : req.responseText;
             }
-            if (req.status === 200 || req.status === 201 || req.status === 202) {
+            if (req.status == 200 || req.status == 201 || req.status == 202) {
                 callback(null, resp, req);
             }
             else if (resp && (resp.error || resp.reason)) {
@@ -228,4 +245,4 @@ define(['exports', 'events', 'jquery'], function (exports, events, $) {
         return ev;
     };
 
-});
+}));

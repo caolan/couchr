@@ -106,7 +106,7 @@
     exports.ajax = function (options, callback) {
         options.complete = onComplete(options, callback);
         options.dataType = 'json';
-        $.ajax(options);
+        return $.ajax(options);
     };
 
 
@@ -138,13 +138,13 @@
                 return callback(e);
             }
         }
-        exports.ajax(options, callback);
+        return exports.ajax(options, callback);
     };
 
     function makeRequest(method) {
         return function () {
             var args = Array.prototype.slice.call(arguments);
-            exports.request.apply(this, [method].concat(args));
+            return exports.request.apply(this, [method].concat(args));
         };
     };
 
@@ -163,7 +163,7 @@
             url += (url.indexOf('?') === -1) ? '?': '&';
             url += 'rev=' + encodeURIComponent(data.rev);
         }
-        exports.request('DELETE', url, data, callback);
+        return exports.request('DELETE', url, data, callback);
     };
 
     // non-standard HTTP method, may not work in all browsers
@@ -171,7 +171,7 @@
         var opt = {
             headers: {'Destination': to}
         };
-        exports.request('COPY', from, null, opt, callback);
+        return exports.request('COPY', from, null, opt, callback);
     };
 
     exports.changes = function (dburl, q) {

@@ -93,6 +93,13 @@ exports.request = function (method, url, /*opt*/data, /*opt*/opt, callback) {
         headers['Content-Length'] = data.length;
     }
     else if (data) {
+        // properly encode "key" properties as JSON
+        ['key', 'keys', 'startkey', 'endkey'].forEach(function(key) {
+            if (data[key] != null) {
+                data[key] = JSON.stringify(data[key]);
+            }
+        });
+
         path = parsed.pathname + '?' + querystring.stringify(data);
         data = null;
         headers['Content-Length'] = 0;

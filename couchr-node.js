@@ -134,7 +134,8 @@ exports.request = function (method, url, /*opt*/data, /*opt*/opt, callback) {
             });
             response.on('end', function () {
                 var data = buffer.join('');
-                if (response.headers['content-type'] === 'application/json') {
+                var ct = (response.headers['content-type'] || '').split(';')[0];
+                if (ct === 'application/json') {
                     try {
                         data = buffer.length ? JSON.parse(data): null;
                     }

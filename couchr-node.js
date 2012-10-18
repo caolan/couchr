@@ -89,7 +89,12 @@ exports.request = function (method, url, /*opt*/data, /*opt*/opt, callback) {
         if (!Buffer.isBuffer(data)) {
             data = new Buffer(data);
         }
-        headers['Content-Type'] = 'application/json';
+        if (opt.headers && opt.headers['Content-Type']) {
+            headers['Content-Type'] = opt.headers['Content-Type'];
+        }
+        else {
+            headers['Content-Type'] = 'application/json';
+        }
         headers['Content-Length'] = data.length;
     }
     else if (data) {

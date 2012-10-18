@@ -109,7 +109,9 @@ exports.request = function (method, url, /*opt*/data, /*opt*/opt, callback) {
         var enc = new Buffer(parsed.auth).toString('base64');
         headers.Authorization = "Basic " + enc;
     }
-
+    if (opt.Cookie) {
+        headers.Cookie = opt.Cookie;
+    }
     var proto = (parsed.protocol === 'https:') ? https: http;
 
     var request = proto.request({

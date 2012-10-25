@@ -106,6 +106,11 @@
     exports.ajax = function (options, callback) {
         options.complete = onComplete(options, callback);
         options.dataType = 'json';
+        if (!options.hasOwnProperty('cache')) {
+            // IE has a tendency to cache /_session and other things stupidly
+            // so turning it off by default
+            options.cache = false;
+        }
         return $.ajax(options);
     };
 

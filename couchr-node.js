@@ -71,6 +71,9 @@ exports.request = function (method, url, /*opt*/data, /*opt*/opt, callback) {
         callback = data;
         data = null;
     }
+
+    opt = opt || {};
+
     var parsed = urlParse(url);
     var path = parsed.path;
     var headers = {

@@ -99,6 +99,8 @@ exports.request = function (method, url, /*opt*/data, /*opt*/opt, callback) {
             headers['Content-Type'] = 'application/json';
         }
         headers['Content-Length'] = data.length;
+    } else if (method === 'COPY') {
+        headers['Destination'] = opt.headers['Destination'];
     }
     else if (data) {
         // properly encode "key" properties as JSON

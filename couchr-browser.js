@@ -12,7 +12,7 @@
     }
     else {
         root.couchr = {};
-        factory(root.couchr, events, jQuery); // Browser globals
+        factory(root.couchr, root.events, jQuery); // Browser globals
     }
 
 }(this, function (exports, events, $) {

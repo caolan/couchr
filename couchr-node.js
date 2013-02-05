@@ -180,6 +180,11 @@ exports.request = function (method, url, /*opt*/data, /*opt*/opt, callback) {
         }
     });
 
+    // handle errors in the request
+    request.on('error', function(err) {
+        callback(err);
+    });
+
     if (data && (method === 'POST' || method === 'PUT')) {
         request.write(data, 'utf8');
     }

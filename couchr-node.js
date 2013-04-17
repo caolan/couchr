@@ -142,18 +142,26 @@ exports.request = function (method, url, /*opt*/data, /*opt*/opt, callback) {
         else {
             var buffer = [];
             response.on('data', function (chunk) {
-                buffer.push(chunk.toString());
+                if (opt.callback_on_data) {
+                    // don't accumulate final result, call function
+                    // immediately with data
+                    var data = parseData(response, chunk.toString());
+                    if (data) {
+                        // don't return 'null's on newlines
+                        return opt.callback_on_data(null, data);
+                    }
+                }
+                else {
+                    // accumulate final result
+                    buffer.push(chunk.toString());
+                }
             });
             response.on('end', function () {
-                var data = buffer.join('');
-                var ct = (response.headers['content-type'] || '').split(';')[0];
-                if (ct === 'application/json') {
-                    try {
-                        data = buffer.length ? JSON.parse(data): null;
-                    }
-                    catch (e) {
-                        return callback(e);
-                    }
+                try {
+                    var data = parseData(response, buffer.join(''));
+                }
+                catch (e) {
+                    return callback(e);
                 }
                 if (response.statusCode >= 300) {
                     if (data && data.error) {
@@ -191,6 +199,16 @@ exports.request = function (method, url, /*opt*/data, /*opt*/opt, callback) {
     request.end();
 };
 
+function parseData(response, data) {
+    var ct = (response.headers['content-type'] || '').split(';')[0];
+    if (ct === 'application/json') {
+        // trim whitespace
+        data = data.replace(/^\s+|\s+$/g, '');
+        // parse if any data, otherwise return null
+        return data.length ? JSON.parse(data): null;
+    }
+    return data;
+}
 
 function makeRequest(method) {
     return function () {

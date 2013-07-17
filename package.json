@@ -1,7 +1,7 @@
 {
     "name": "couchr",
     "description": "Lightweight XHR wrapper for CouchDB requests",
-    "version": "0.0.13",
+    "version": "0.0.14",
     "categories": ["AJAX & Websockets", "API Clients"],
     "jam": {
         "main": "couchr-browser.js",
@@ -13,7 +13,7 @@
     },
     "main": "couchr-node.js",
     "dependencies": {
-        "follow": "0.8.0"
+        "follow": "0.9.0"
     },
     "github": "https://github.com/caolan/couchr",
     "bugs": {

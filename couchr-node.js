@@ -1,4 +1,5 @@
 var querystring = require('querystring'),
+    domain = require('domain'),
     follow = require('follow'),
     http = require('http'),
     https = require('https'),
@@ -244,12 +245,22 @@ exports.copy = function (from, to, callback) {
 };
 
 exports.changes = function (dburl, q) {
-    q = q || {};
-    if (!q.hasOwnProperty('since')) {
-        q.since = 'now';
-    }
-    q.db = dburl;
-    var feed = new follow.Feed(q);
-    feed.follow();
+    var feed;
+    var d = domain.create();
+    d.run(function () {
+        q = q || {};
+        if (!q.hasOwnProperty('since')) {
+            q.since = 'now';
+        }
+        q.db = dburl;
+        feed = new follow.Feed(q);
+        feed.follow();
+    });
+    // some errors from follow are hard to catch (eg, socket hang up when
+    // couch is killed) - wrap in a domain and proxy error events to feed
+    // object
+    d.on('error', function (err) {
+        feed.emit('error', err);
+    });
     return feed;
 };

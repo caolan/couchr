@@ -131,6 +131,15 @@
         if (data) {
             try {
                 if (method === 'GET' || method === 'HEAD') {
+	
+					// Copied here from line 107-113 of couchr-node.js
+			        // properly encode "key" properties as JSON
+			        ['key', 'keys', 'startkey', 'endkey'].forEach(function(key) {
+			            if (data[key] != null) {
+			                data[key] = JSON.stringify(data[key]);
+			            }
+			        });
+			
                     options.data = exports.stringifyQuery(data);
                 }
                 else {

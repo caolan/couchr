@@ -1,7 +1,7 @@
 {
   "name": "couchr",
   "description": "Lightweight XHR wrapper for CouchDB requests",
-  "version": "0.0.15",
+  "version": "0.0.16",
   "categories": [
     "AJAX & Websockets",
     "API Clients"

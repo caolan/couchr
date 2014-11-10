@@ -19,8 +19,7 @@
   },
   "main": "couchr-node.js",
   "dependencies": {
-    "follow": "0.11.3",
-    "highland": "^1.20.0"
+    "follow": "0.11.3"
   },
   "github": "https://github.com/caolan/couchr",
   "bugs": {

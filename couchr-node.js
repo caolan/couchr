@@ -167,7 +167,7 @@ exports.request = function (method, url, /*opt*/data, /*opt*/opt, callback) {
                 if (response.statusCode >= 300) {
                     if (data && data.error) {
                         var err = new Error(
-                            data.error + (data.reason ? '\n' + data.reason: '')
+                            data.error + (data.reason ? '\n' + data.reason: '') + 'URL: ' + url
                         );
                         err.error = data.error;
                         err.reason = data.reason;
